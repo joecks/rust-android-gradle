@@ -4,7 +4,6 @@ import java.io.File
 
 import com.android.build.gradle.*
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
@@ -34,24 +33,25 @@ open class GenerateToolchainsTask : DefaultTask() {
                 .filter { it.type == ToolchainType.ANDROID_GENERATED }
                 .filter { (arch) -> targets.contains(arch) }
                 .forEach { (arch) ->
-                     if (arch.endsWith("64") && apiLevel < 21) {
-                        throw GradleException("Can't target 64-bit ${arch} with API level < 21 (${apiLevel})")
+                    var archApiLevel = apiLevel
+                    if (arch.endsWith("64") && apiLevel < 21) {
+                        archApiLevel = 21
                     }
 
-                    val dir = File(cargoExtension.toolchainDirectory, arch + "-" + apiLevel)
+                    val dir = File(cargoExtension.toolchainDirectory, arch + "-" + archApiLevel)
                     if (dir.exists()) {
-                        println("Toolchain for arch ${arch} version ${apiLevel} exists: checked ${dir}")
+                        println("Toolchain for arch ${arch} version ${archApiLevel} exists: checked ${dir}")
                         return@forEach
                     }
 
-                    println("Toolchain for arch ${arch} version ${apiLevel} does not exist: checked ${dir}")
+                    println("Toolchain for arch ${arch} version ${archApiLevel} does not exist: checked ${dir}")
                     project.exec { spec ->
                         spec.standardOutput = System.out
                         spec.errorOutput = System.out
                         spec.commandLine(cargoExtension.pythonCommand)
                         spec.args("$ndkPath/build/tools/make_standalone_toolchain.py",
                                   "--arch=$arch",
-                                  "--api=$apiLevel",
+                                  "--api=$archApiLevel",
                                   "--install-dir=${dir}",
                                   "--force")
                     }

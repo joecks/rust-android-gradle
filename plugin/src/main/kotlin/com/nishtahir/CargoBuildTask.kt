@@ -68,9 +68,18 @@ open class CargoBuildTask : DefaultTask() {
         }
     }
 
+    inline fun needsApi21Minimum(target : String?): Boolean {
+        return target?.endsWith("64") ?: false
+    }
+
     inline fun <reified T : BaseExtension> buildProjectForTarget(project: Project, toolchain: Toolchain, cargoExtension: CargoExtension) {
+        toolchain.target
         val app = project.extensions[T::class]
-        val apiLevel = cargoExtension.apiLevel ?: app.defaultConfig.minSdkVersion.apiLevel
+        var apiLevel = cargoExtension.apiLevel ?: app.defaultConfig.minSdkVersion.apiLevel
+        if (apiLevel < 21 && needsApi21Minimum(toolchain.target)) {
+            logger.info("Set API level to 21 for x64 build: ${toolchain.target}")
+            apiLevel = 21
+        }
         val defaultTargetTriple = getDefaultTargetTriple(project, cargoExtension.rustcCommand)
 
         project.exec { spec ->
