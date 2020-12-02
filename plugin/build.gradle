@@ -7,7 +7,7 @@ apply plugin: "kotlin"
 
 gradlePlugin {
     plugins {
-        simplePlugin {
+        rustAndroidPlugin {
             id = 'io.github.david-allison-1.rust-android-gradle'
             implementationClass = 'com.nishtahir.RustAndroidPlugin'
         }
