@@ -3,7 +3,6 @@ plugins {
 }
 
 apply plugin: "java-gradle-plugin"
-apply plugin: "maven-publish"
 apply plugin: "kotlin"
 
 gradlePlugin {
@@ -17,22 +16,6 @@ gradlePlugin {
 
 group 'org.mozilla.rust-android-gradle'
 version "$plugin_version"
-
-publishing {
-    repositories {
-        maven {
-            url "../samples/maven-repo"
-        }
-    }
-    publications {
-        maven(MavenPublication) {
-            groupId 'org.mozilla.rust-android-gradle'
-            artifactId 'rust-android'
-
-            from components.java
-        }
-    }
-}
 
 dependencies {
     compileOnly gradleApi()
